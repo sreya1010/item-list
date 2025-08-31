@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Item List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-2: #2563eb;
+      --danger: #ef4444;
+      --danger-2: #dc2626;
+      --border: #1f2937;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      padding: 32px 20px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.1), transparent 60%),
+                  radial-gradient(1000px 500px at 110% 10%, rgba(239,68,68,.08), transparent 60%),
+                  var(--bg);
+      display: grid;
+      place-items: start center;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      width: min(720px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.03);
+      margin-bottom: 14px;
+    }
+
+    .controls input[type="text"] {
+      flex: 1 1 auto;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: var(--text);
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .controls input[type="text"]::placeholder {
+      color: var(--muted);
+    }
+
+    .controls input[type="text"]:focus {
+      border-color: color-mix(in oklab, var(--accent) 50%, white 0%);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent 80%);
+    }
+
+    button {
+      padding: 12px 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform .05s ease, filter .15s ease, opacity .15s ease;
+      user-select: none;
+    }
+
+    button:hover { filter: brightness(1.05); }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: min(720px, 100%);
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.03);
+      animation: fadeIn .18s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    li span.item-text {
+      flex: 0 1 auto;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .spacer { flex: 1 1 auto; }
+
+    .delete-btn {
+      background: linear-gradient(180deg, var(--danger), var(--danger-2));
+      border: none;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .delete-btn:hover { filter: brightness(1.05); }
+    .delete-btn:active { transform: translateY(1px); }
+
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Item List</h1>
+
+  <div class="controls">
+    <input id="itemInput" type="text" placeholder="Enter an item..." aria-label="Item text" />
+    <button id="addBtn" type="button" onclick="addItem()">Add Item</button>
+  </div>
+
+  <ul id="itemList" aria-live="polite"></ul>
+
+  <script>
+    function addItem() {
+      const input = document.getElementById('itemInput');
+      const list = document.getElementById('itemList');
+      const text = input.value.trim();
+
+      if (!text) {
+        alert('Please enter some text');
+        return;
+      }
+
+      const li = document.createElement('li');
+
+      // Text node for the item
+      const label = document.createElement('span');
+      label.className = 'item-text';
+      label.textContent = text;
+
+      // Delete button
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'delete-btn';
+      delBtn.setAttribute('aria-label', `Delete "${text}"`);
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', () => {
+        li.remove();
+      });
+
+      // Layout: text | spacer | delete
+      const spacer = document.createElement('span');
+      spacer.className = 'spacer';
+
+      li.appendChild(label);
+      li.appendChild(spacer);
+      li.appendChild(delBtn);
+
+      list.appendChild(li);
+
+      // Clear and focus input
+      input.value = '';
+      input.focus();
+    }
+
+    // Allow Enter key to add item
+    document.getElementById('itemInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addItem();
+      }
+    });
+  </script>
+</body>
+</html>
